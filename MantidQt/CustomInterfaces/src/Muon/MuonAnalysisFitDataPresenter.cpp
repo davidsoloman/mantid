@@ -298,7 +298,10 @@ std::vector<std::string> MuonAnalysisFitDataPresenter::generateWorkspaceNames(
   std::vector<std::string> workspaceNames;
   const auto groups = m_dataSelector->getChosenGroups();
   const auto periods = m_dataSelector->getPeriodSelections();
-
+  for (auto xx : periods) {
+	  auto y = xx.toStdString();
+	  auto a = 1.0;
+  }
   Muon::DatasetParams params;
   const std::string instRuns = instrument + runString;
   std::vector<int> selectedRuns;
@@ -340,7 +343,7 @@ std::vector<std::string> MuonAnalysisFitDataPresenter::generateWorkspaceNames(
       runNumberVectors.push_back({run});
     }
   }
-
+  auto tmp = periods.size();
   for (const auto runsVector : runNumberVectors) {
     params.runs = runsVector;
     for (const auto &group : groups) {

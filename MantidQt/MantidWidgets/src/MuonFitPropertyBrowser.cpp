@@ -337,6 +337,31 @@ void MuonFitPropertyBrowser::setWorkspaceName(const QString &wsName) {
 void MuonFitPropertyBrowser::enumChanged(QtProperty *prop) {
   if (!m_changeSlotsEnabled)
     return;
+  if (prop == m_workspace) {
+	  FitPropertyBrowser::enumChanged(prop);
+	  if (m_periodBoxes.size() > 1) {
+		  int j = m_enumManager->value(m_workspace);
+		  auto shortName = m_workspaceNames[j].toStdString();
+		  size_t end = 0;
+		  //assumed structure of name
+		  for (int k = 0; k < 4; k++) {
+			  end = shortName.find_first_of(";");
+			  shortName = shortName.substr(end + 1, shortName.size());
+		  }
+		  end = shortName.find_first_of(";");
+		  QString selectedPeriod = QString::fromStdString(shortName.substr(0, end));
+		  // turn on only the relevant box
+		  for (auto iter = m_periodBoxes.constBegin();
+			  iter != m_periodBoxes.constEnd(); ++iter) {
+			  if (selectedPeriod == iter.key()) {
+				  m_boolManager->setValue(iter.value(), true);
+			  }
+			  else {
+				  m_boolManager->setValue(iter.value(), false);
+			  }
+		  }
+	  }
+  }
   if (prop == m_groupsToFit) {
     int j = m_enumManager->value(m_groupsToFit);
     QString option = m_groupsToFitOptions[j];
@@ -374,12 +399,17 @@ void MuonFitPropertyBrowser::enumChanged(QtProperty *prop) {
       }
     }
     updatePeriodDisplay();
-  } else if (prop == m_workspace) {
+  } //only called in single fit
+  else if (prop == m_workspace) {
+	  auto tmp = m_workspacesToFit;
     // make sure the output is updated
     FitPropertyBrowser::enumChanged(prop);
     int j = m_enumManager->value(m_workspace);
     std::string option = m_workspaceNames[j].toStdString();
     setOutputName(option);
+	m_workspacesToFit.clear();
+	m_workspacesToFit.push_back(option);
+	
   } else {
     FitPropertyBrowser::enumChanged(prop);
   }
